@@ -3,11 +3,11 @@
   "name": "covermaker-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "npx tsx src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -22,5 +22,13 @@
     "openai": "^4.33.0",
     "pdf-parse": "^1.1.1",
     "pdfreader": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.11",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }

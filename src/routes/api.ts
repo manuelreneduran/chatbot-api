@@ -1,10 +1,9 @@
 import express from "express";
-import multer from "multer";
 
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.send("Ping");
+  res.send("ping");
 });
 
 export default router;
