@@ -1,5 +1,5 @@
 import express from "express";
-import { handleUserChatRequest } from "../controllers/chat";
+import { deleteUserData, handleUserChatRequest } from "../controllers/chat";
 
 const router = express.Router();
 
@@ -8,5 +8,7 @@ router.get("/", (req, res) => {
 });
 
 router.post("/api/chat", handleUserChatRequest);
+
+router.delete("/api/deleteUserData", deleteUserData);
 
 export default router;

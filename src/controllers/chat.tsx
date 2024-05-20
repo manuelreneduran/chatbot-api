@@ -1,5 +1,6 @@
 import openai from "../services/openAI";
 import db from "../services/db";
+
 // Helper function to generate embedding using OpenAI API
 async function generateEmbedding(input: string): Promise<number[]> {
   const response = await openai.embeddings.create({
@@ -18,10 +19,10 @@ async function storeInteraction(
 ) {
   await db.query(
     `
-        INSERT INTO user_embeddings (user_id, embedding, user_input, response)
-        VALUES ($1, $2, $3, $4);
-    `,
-    [userId, embedding, userInput, response]
+            INSERT INTO user_embeddings (user_id, embedding, user_input, response)
+            VALUES ($1, $2, $3, $4);
+        `,
+    [userId, JSON.stringify(embedding), userInput, response]
   );
 }
 
@@ -32,12 +33,12 @@ async function queryRelevantInfo(
 ): Promise<any[]> {
   const result = await db.query(
     `
-        SELECT * FROM user_embeddings
-        WHERE user_id = $1
-        ORDER BY embedding <-> $2
-        LIMIT 5;
-    `,
-    [userId, embedding]
+            SELECT * FROM user_embeddings
+            WHERE user_id = $1
+            ORDER BY embedding <-> $2
+            LIMIT 5;
+        `,
+    [userId, JSON.stringify(embedding)]
   );
 
   return result.rows;
@@ -58,16 +59,25 @@ const handleUserChatRequest = async (req, res) => {
     const context = relevantInfo
       .map((info) => info.user_input + "\n" + info.response)
       .join("\n");
-    const prompt = `User asked: ${userInput}\n\nContext:\n${context}\n\nAI response:`;
+
+    console.log("context -------------------", context);
 
     // Generate response using ChatGPT
-    const gptResponse = await openai.completions.create({
-      model: "text-davinci-003",
-      prompt: prompt,
+    const gptResponse = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo-0125",
+      messages: [
+        {
+          role: "system",
+          content: `You are a helpful chatbot. Use this context for your answers: ${context}`,
+        },
+        { role: "user", content: userInput },
+      ],
       max_tokens: 150,
     });
 
-    const aiResponse = gptResponse.choices[0].text.trim();
+    const aiResponse =
+      gptResponse.choices[0].message.content ||
+      "I'm sorry, I didn't understand that.";
 
     // Store the interaction in the database
     await storeInteraction(userId, embedding, userInput, aiResponse);
@@ -80,4 +90,20 @@ const handleUserChatRequest = async (req, res) => {
   }
 };
 
-export { handleUserChatRequest };
+const deleteUserData = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    const deleteQuery = `
+            DELETE FROM user_embeddings
+            WHERE user_id = $1;
+        `;
+
+    await db.query(deleteQuery, [userId]);
+    res.json({ message: "User data deleted successfully" });
+  } catch (e) {
+    console.error("Error deleting user data", e);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export { handleUserChatRequest, deleteUserData };
