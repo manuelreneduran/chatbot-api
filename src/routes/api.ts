@@ -1,5 +1,10 @@
 import express from "express";
-import { deleteUserData, handleUserChatRequest } from "../controllers/chat";
+import {
+  deleteUserData,
+  handleUserChatRequest,
+} from "../controllers/chatController";
+import { authenticateToken } from "../middleware/auth";
+import { adminLogin } from "../controllers/authController";
 
 const router = express.Router();
 
@@ -9,6 +14,7 @@ router.get("/", (req, res) => {
 
 router.post("/api/chat", handleUserChatRequest);
 
-router.delete("/api/deleteUserData", deleteUserData);
+router.delete("/admin/deleteUserData", authenticateToken, deleteUserData);
 
+router.post("/admin/login", adminLogin);
 export default router;
