@@ -1,4 +1,6 @@
 import openai from "../services/openAI";
+import fs from "fs";
+import readline from "readline";
 
 // Helper function to generate embedding using OpenAI API
 async function generateEmbedding(input: string): Promise<number[]> {
@@ -25,4 +27,34 @@ function splitTextIntoChunks(text: string, chunkSize: number): string[] {
   return chunks;
 }
 
-export { generateEmbedding, splitTextIntoChunks };
+// Main function to process and store large reference texts
+async function processAndStoreLargeText(
+  filePath: string,
+  title: string,
+  maxTokens: number,
+  storeText: Function
+) {
+  try {
+    const fileStream = fs.createReadStream(filePath);
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity,
+    });
+
+    let text = "";
+    for await (const line of rl) {
+      text += line + "\n";
+    }
+
+    const chunks = splitTextIntoChunks(text, maxTokens);
+
+    for (const chunk of chunks) {
+      const embedding = await generateEmbedding(chunk);
+      await storeText(title, chunk, embedding);
+    }
+  } catch (e) {
+    console.log("Error processing and storing reference text:", e);
+  }
+}
+
+export { generateEmbedding, splitTextIntoChunks, processAndStoreLargeText };
