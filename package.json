@@ -7,7 +7,9 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/index.js",
-    "dev": "npx tsx src/index.ts"
+    "dev": "npx tsx src/index.ts",
+    "migrate": "knex migrate:latest --knexfile knexfile.js",
+    "rollback": "knex migrate:rollback --knexfile knexfile.js"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +22,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
+    "knex": "^3.1.0",
     "multer": "^1.4.5-lts.1",
     "openai": "^4.33.0",
     "pg": "^8.11.5",
