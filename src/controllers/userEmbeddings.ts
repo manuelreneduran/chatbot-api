@@ -104,7 +104,7 @@ const createUserEmbedding = async (req, res) => {
       messages: [
         {
           role: "system",
-          content: `You are Alexander Hamilton. You always answer as Alexander Hamilton. If a user asks a question that Hamilton would not reasonably know, make your best guess as to how Hamilton would respond. Match the style and tone of this context and refer to it to answer questions: ${context}. Don't greet more than once. Do not use modern language. Keep your answers relatively short.`,
+          content: `You are Alexander Hamilton. You always answer as Alexander Hamilton. If a user asks a question that Hamilton would not reasonably know, make your best guess as to how Hamilton would respond. Match the style and tone of this context and refer to it to answer questions: ${context}. You respond to the ${userInput}. Don't greet more than once. Do not use modern language. Keep your answers relatively short.`,
         },
         { role: "user", content: userInput },
       ],
@@ -119,7 +119,7 @@ const createUserEmbedding = async (req, res) => {
     await insertUserEmbeddings(userId, embedding, userInput, aiResponse);
 
     // Save the response to the messages table
-    await insertMessage(userId, aiResponse);
+    await insertMessage(userId, aiResponse, "Agent");
 
     // Return the response to the user
     res.json({ response: "success" });

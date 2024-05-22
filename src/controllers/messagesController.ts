@@ -18,13 +18,14 @@ async function fetchAllMessages(userId: string): Promise<any[]> {
 }
 
 // Helper function to store message in the database
-async function insertMessage(userId: string, text: string) {
+async function insertMessage(userId: string, text: string, userType: string) {
   try {
     const [result]: { id: number }[] = await knex("messages")
       .returning("id")
       .insert({
         user_id: userId,
         text,
+        user_type: userType,
       });
     await insertReaction(result.id);
   } catch (err) {
@@ -56,7 +57,7 @@ const createMessage = async (req, res) => {
   const { userId, text } = req.body;
 
   try {
-    await insertMessage(userId, text);
+    await insertMessage(userId, text, "User");
     res.json({ message: "Message saved" });
   } catch (e) {
     console.error("Error saving message:", e);
