@@ -1,5 +1,8 @@
 import express from "express";
-import { handleUserChatRequest } from "../controllers/chatController";
+import {
+  createChatHistory,
+  getChatHistory,
+} from "../controllers/chatHistoryController";
 import { authenticateToken } from "../middleware/auth";
 import { adminLogin } from "../controllers/authController";
 import { deleteUserData } from "../controllers/adminController";
@@ -11,7 +14,8 @@ router.get("/", (req, res) => {
 });
 
 // Chat routes
-router.post("/api/chat", handleUserChatRequest);
+router.post("/api/chat", createChatHistory);
+router.get("/api/chat", getChatHistory);
 
 // Admin routes
 router.delete("/admin/deleteUserData", authenticateToken, deleteUserData);
