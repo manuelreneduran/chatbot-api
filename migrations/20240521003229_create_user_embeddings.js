@@ -10,8 +10,6 @@ export async function up(knex) {
       table.specificType("embedding", "vector(1536)").notNullable(); // Assuming the embedding size is 1536
       table.text("user_input");
       table.text("response");
-      table.boolean("user_read").defaultTo(false);
-      table.boolean("agent_read").defaultTo(false);
       table.timestamp("created_at").defaultTo(knex.fn.now());
     });
   }

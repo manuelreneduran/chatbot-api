@@ -1,7 +1,7 @@
 export async function up(knex) {
   return knex.schema.createTable("reactions", function (table) {
     table.increments("id").primary();
-    table.integer("embedding_id").unsigned().notNullable();
+    table.integer("message_id").unsigned().notNullable();
     table.boolean("user_like").defaultTo(false);
     table.boolean("user_love").defaultTo(false);
     table.boolean("user_haha").defaultTo(false);
@@ -15,9 +15,9 @@ export async function up(knex) {
     table.boolean("agent_sad").defaultTo(false);
     table.boolean("agent_angry").defaultTo(false);
     table
-      .foreign("embedding_id")
+      .foreign("message_id")
       .references("id")
-      .inTable("user_embeddings")
+      .inTable("messages")
       .onDelete("CASCADE");
   });
 }

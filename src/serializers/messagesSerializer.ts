@@ -1,22 +1,22 @@
 import { TMessage, TMessageList } from "../types";
-import { formatDate } from "../utils/date";
+import { formatDate, formatTime } from "../utils/date";
 
-// Helper function to serialize chat history for the response
-export const serializeChatHistory = (chatHistory) => {
-  const serializedChatHistory: TMessageList = {};
+// Helper function to serialize messages for the response
+export const serializeMessages = (chatHistory) => {
+  const serializedMessages: TMessageList = {};
 
   chatHistory.forEach((chat) => {
     const date = formatDate(new Date(chat.created_at));
 
-    if (!serializedChatHistory[date]) {
-      serializedChatHistory[date] = [];
+    if (!serializedMessages[date]) {
+      serializedMessages[date] = [];
     }
 
     const userMessage: TMessage = {
       id: chat.id,
       content: chat.user_input,
       sender: "User",
-      created_at: chat.created_at,
+      created_at: formatTime(chat.created_at),
       read: chat.user_read,
       reactions: {
         like: chat.user_like,
@@ -32,7 +32,7 @@ export const serializeChatHistory = (chatHistory) => {
       id: chat.id,
       content: chat.response,
       sender: "Agent",
-      created_at: chat.created_at,
+      created_at: formatTime(chat.created_at),
       read: chat.agent_read,
       reactions: {
         like: chat.agent_like,
@@ -44,8 +44,8 @@ export const serializeChatHistory = (chatHistory) => {
       },
     };
 
-    serializedChatHistory[date].push(userMessage, agentMessage);
+    serializedMessages[date].push(userMessage, agentMessage);
   });
 
-  return serializedChatHistory;
+  return serializedMessages;
 };

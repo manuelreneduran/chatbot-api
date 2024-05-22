@@ -1,11 +1,9 @@
 import express from "express";
-import {
-  createChatHistory,
-  getChatHistory,
-} from "../controllers/chatHistoryController";
+import { createUserEmbedding } from "../controllers/userEmbeddings";
 import { authenticateToken } from "../middleware/auth";
 import { adminLogin } from "../controllers/authController";
 import { deleteUserData } from "../controllers/adminController";
+import { createMessage, getMessages } from "../controllers/messagesController";
 
 const router = express.Router();
 
@@ -14,8 +12,9 @@ router.get("/", (req, res) => {
 });
 
 // Chat routes
-router.post("/api/chat", createChatHistory);
-router.get("/api/chat", getChatHistory);
+router.post("/api/embeddings", createUserEmbedding);
+router.get("/api/messages", getMessages);
+router.post("/api/messages", createMessage);
 
 // Admin routes
 router.delete("/admin/deleteUserData", authenticateToken, deleteUserData);
