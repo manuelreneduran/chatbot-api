@@ -3,6 +3,8 @@ import cors from "cors";
 import "dotenv/config";
 import "./services/openAI";
 import apiRoutes from "./routes/api.ts";
+// import "./tasks/index.ts";
+
 const app = express();
 
 app.use(cors());

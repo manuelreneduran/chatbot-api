@@ -1,7 +1,9 @@
 import openai from "../services/openAI";
 import knex from "../services/knex";
 import { generateEmbedding } from "./utils";
-import { insertMessage } from "./messagesController";
+import { fetchMessage, insertMessage } from "./messagesController";
+import { getRandomNumber, randomBoolean } from "../utils/number";
+import { updateReaction } from "./reactionsController";
 
 // Helper function to store interaction in the database
 async function insertUserEmbeddings(
@@ -60,9 +62,44 @@ const fetchRelevantReferenceTexts = async (embedding: number[]) => {
 
 // Endpoint to save user embedding and make request to ChatGPT
 const createUserEmbedding = async (req, res) => {
-  const { userId, userInput } = req.body;
+  const { userId, messageId } = req.body;
 
   try {
+    // fetch the user message from the database
+    const message = await fetchMessage(messageId);
+
+    const userInput = message.text;
+
+    const gptReactionResponse = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo-0125",
+      messages: [
+        {
+          role: "system",
+          content: `
+          You are Alexander Hamilton. 
+          You will respond to the user input and return one of the following reactions based on how Hamilton would respond to the user input:
+          like, love, haha, wow, sad, angry 
+         `,
+        },
+        { role: "user", content: userInput },
+      ],
+      max_tokens: 150,
+    });
+
+    const aiReactionResponse = gptReactionResponse.choices[0].message.content;
+
+    // has an x percent chance of reacting to the message
+    if (aiReactionResponse && randomBoolean(0.85)) {
+      setTimeout(async () => {
+        try {
+          await updateReaction(messageId, aiReactionResponse, true);
+          console.log("Reaction inserted successfully after X seconds");
+        } catch (error) {
+          console.error("Error inserting delayed reaction", error);
+        }
+      }, getRandomNumber(1000, 3000));
+    }
+
     // Generate embedding for the user input
     const embedding = await generateEmbedding(userInput);
 
@@ -104,25 +141,53 @@ const createUserEmbedding = async (req, res) => {
       messages: [
         {
           role: "system",
-          content: `You are Alexander Hamilton. You always answer as Alexander Hamilton. If a user asks a question that Hamilton would not reasonably know, make your best guess as to how Hamilton would respond. Match the style and tone of this context and refer to it to answer questions: ${context}. You respond to the ${userInput}. Don't greet more than once. Do not use modern language. Keep your answers relatively short.`,
+          content: `
+          You are Alexander Hamilton. You always answer as Alexander Hamilton. 
+          If a user asks a question that Hamilton would not reasonably know, 
+          make your best guess as to how Hamilton would respond.
+          Don't greet more than once. 
+          Do not use modern language. 
+          Do not repeat yourself.
+          Keep your answers relatively short.
+          Also consider Hamilton's reaction to the user input: ${
+            aiReactionResponse || "natural response"
+          }
+          Match the style and tone of this context and refer to it to answer the user's input: ${context}. `,
         },
         { role: "user", content: userInput },
       ],
       max_tokens: 150,
     });
 
-    const aiResponse =
-      gptResponse.choices[0].message.content ||
-      "I'm sorry, I didn't understand that.";
+    let aiResponse = gptResponse.choices[0].message.content;
+
+    if (!aiResponse) {
+      return res.status(500).json({ error: "Error generating response" });
+    }
 
     // Store the interaction in the database
-    await insertUserEmbeddings(userId, embedding, userInput, aiResponse);
+    await insertUserEmbeddings(
+      userId,
+      embedding,
+      userInput,
+      aiResponse as string
+    );
 
-    // Save the response to the messages table
-    await insertMessage(userId, aiResponse, "Agent");
+    // // Save the response to the messages table
+    // await insertMessage(userId, aiResponse, "Agent");
 
     // Return the response to the user
     res.json({ response: "success" });
+
+    // Delay the insertion of the message by 10-30 seconds to give time to react
+    setTimeout(async () => {
+      try {
+        await insertMessage(userId, aiResponse as string, "Agent");
+        console.log("Message inserted successfully after 20 seconds");
+      } catch (error) {
+        console.error("Error inserting delayed message", error);
+      }
+    }, getRandomNumber(3000, 10000));
   } catch (err) {
     console.error("Error handling chat request", err);
     res.status(500).json({ error: "Internal server error" });

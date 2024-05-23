@@ -1,6 +1,38 @@
 import { serializeMessages } from "../serializers/messagesSerializer";
 import knex from "../services/knex";
 import { insertReaction } from "./reactionsController";
+import _ from "lodash";
+
+// Helper function to get the latest message from every user
+const getLatestMessagesFromAllUsers = async () => {
+  try {
+    const result = await knex("messages")
+      .select("user_id", "text")
+      .max("created_at as latest_created_at")
+      .where("user_type", "!=", "Agent")
+      .groupBy("user_id", "text");
+
+    // Fetch the full message details for the latest messages
+    const latestMessages = _.uniqBy(result, "user_id");
+    return latestMessages;
+  } catch (e) {
+    console.error("Error getting latest messages from all users:", e);
+  }
+};
+
+// Helper function to fetch a message from a user
+const fetchMessage = async (messageId: string) => {
+  try {
+    const result = await knex("messages")
+      .where("id", messageId)
+      .orderBy("created_at", "desc")
+      .first();
+
+    return result;
+  } catch (e) {
+    console.error("Error fetching message:", e);
+  }
+};
 
 // Helper function to query relevant information from the database
 async function fetchAllMessages(userId: string): Promise<any[]> {
@@ -28,6 +60,7 @@ async function insertMessage(userId: string, text: string, userType: string) {
         user_type: userType,
       });
     await insertReaction(result.id);
+    return result.id;
   } catch (err) {
     console.error("Error storing user embedding:", err);
   }
@@ -57,12 +90,18 @@ const createMessage = async (req, res) => {
   const { userId, text } = req.body;
 
   try {
-    await insertMessage(userId, text, "User");
-    res.json({ message: "Message saved" });
+    const messageId = await insertMessage(userId, text, "User");
+    res.json({ messageId });
   } catch (e) {
     console.error("Error saving message:", e);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export { getMessages, createMessage, insertMessage };
+export {
+  getMessages,
+  createMessage,
+  insertMessage,
+  getLatestMessagesFromAllUsers,
+  fetchMessage,
+};

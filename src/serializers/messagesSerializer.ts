@@ -5,7 +5,11 @@ import { formatDate, formatTime } from "../utils/date";
 export const serializeMessages = (messages) => {
   const serializedMessages: TMessageList = {};
 
-  messages.forEach((message) => {
+  const sortedMessages = messages.sort(
+    (a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
+  sortedMessages.forEach((message) => {
     const date = formatDate(new Date(message.created_at));
 
     if (!serializedMessages[date]) {
