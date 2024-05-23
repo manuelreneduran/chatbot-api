@@ -4,6 +4,7 @@ import { authenticateToken } from "../middleware/auth";
 import { adminLogin } from "../controllers/authController";
 import { deleteUserData } from "../controllers/adminController";
 import { createMessage, getMessages } from "../controllers/messagesController";
+import { createOrDeleteReaction } from "../controllers/reactionsController";
 
 const router = express.Router();
 
@@ -15,6 +16,7 @@ router.get("/", (req, res) => {
 router.post("/api/embeddings", createUserEmbedding);
 router.get("/api/messages", getMessages);
 router.post("/api/messages", createMessage);
+router.post("/api/reactions", createOrDeleteReaction);
 
 // Admin routes
 router.delete("/admin/deleteUserData", authenticateToken, deleteUserData);
