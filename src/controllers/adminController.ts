@@ -4,6 +4,12 @@ const deleteUserData = async (req, res) => {
   const { userId } = req.body;
   try {
     await knex("user_embeddings").where("user_id", userId).del();
+    await knex("reactions")
+      .whereIn("message_id", function () {
+        this.select("id").from("messages").where("user_id", userId);
+      })
+      .del();
+    await knex("messages").where("user_id", userId).del();
 
     res.json({ message: "User data deleted successfully" });
   } catch (e) {

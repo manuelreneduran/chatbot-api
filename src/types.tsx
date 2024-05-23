@@ -2,7 +2,7 @@ export type TMessage = {
   id: string;
   content: string;
   sender: "User" | "Agent";
-  created_at: string;
+  createdAt: string;
   read: boolean;
   reactions: {
     [key in TEmoji]: boolean;

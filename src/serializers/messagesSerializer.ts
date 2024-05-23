@@ -16,7 +16,7 @@ export const serializeMessages = (messages) => {
       id: message.id,
       content: message.text,
       sender: message.user_type,
-      created_at: formatTime(message.created_at),
+      createdAt: formatTime(message.created_at),
       read: message.read,
       reactions: {
         like: message.like,
