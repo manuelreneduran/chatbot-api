@@ -7,7 +7,13 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/index.js",
+    "start:pm2": "pm2 start dist/index.js --name my-app --watch",
     "dev": "npx tsx src/index.ts",
+    "dev:pm2": "pm2 start src/index.ts --name my-app --watch --interpreter npx --interpreter-args 'tsx'",
+    "stop:pm2": "pm2 stop my-app",
+    "restart:pm2": "pm2 restart my-app",
+    "logs:pm2": "pm2 logs my-app --lines 100",
+    "logs:pm2:error": "pm2 logs my-app --lines 100 --err",
     "migrate": "knex migrate:latest --knexfile knexfile.js",
     "rollback": "knex migrate:rollback --knexfile knexfile.js"
   },
