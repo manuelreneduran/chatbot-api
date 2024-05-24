@@ -1,4 +1,5 @@
 import knex from "../services/knex";
+import { getRandomNumber } from "../utils/number";
 
 // Helper function to store reaction in the database
 export async function insertReaction(messageId: number) {
@@ -64,4 +65,15 @@ export const createOrDeleteReaction = async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   }
+};
+
+export const handleDelayedReaction = (messageId, aiReactionResponse) => {
+  setTimeout(async () => {
+    try {
+      await updateReaction(messageId, aiReactionResponse, true);
+      console.log("Reaction inserted successfully after X seconds");
+    } catch (error) {
+      console.error("Error inserting delayed reaction", error);
+    }
+  }, getRandomNumber(1, 3000));
 };

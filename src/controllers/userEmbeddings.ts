@@ -1,9 +1,12 @@
-import openai from "../services/openAI";
 import knex from "../services/knex";
+import { randomBoolean } from "../utils/number";
+import { generateGptReaction, generateGptResponse } from "./gptController";
+import {
+  fetchMessage,
+  handleDelayedMessageInsertion,
+} from "./messagesController";
+import { handleDelayedReaction } from "./reactionsController";
 import { extractReactions, generateEmbedding } from "./utils";
-import { fetchMessage, insertMessage } from "./messagesController";
-import { getRandomNumber, randomBoolean } from "../utils/number";
-import { updateReaction } from "./reactionsController";
 
 // Helper function to store interaction in the database
 async function insertUserEmbeddings(
@@ -60,6 +63,19 @@ const fetchRelevantReferenceTexts = async (embedding: number[]) => {
   }
 };
 
+// Helper function to build the context for ChatGPT
+const buildContext = (userEmbeddings) => {
+  return userEmbeddings
+    .map((info) => {
+      if (info.user_input) {
+        return `${info.created_at}\nuser_input: ${info.user_input}\nresponse: ${info.response}`;
+      } else {
+        return `${info.title}\ntext: ${info.text}`;
+      }
+    })
+    .join("\n");
+};
+
 // Endpoint to save user embedding and make request to ChatGPT
 const createUserEmbedding = async (req, res) => {
   const { userId, messageId } = req.body;
@@ -70,36 +86,17 @@ const createUserEmbedding = async (req, res) => {
 
     const userInput = message.text;
 
-    const gptReactionResponse = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo-0125",
-      messages: [
-        {
-          role: "system",
-          content: `
-          You are Alexander Hamilton. 
-          You will ALWAYS AND ONLY return one of the following reactions based on how Hamilton would respond to the user input:
-          like, love, haha, wow, sad, angry 
-         `,
-        },
-        { role: "user", content: userInput },
-      ],
-      max_tokens: 150,
-    });
+    // Generate a reaction to the user message
+    const gptReactionResponse = await generateGptReaction(userInput);
 
     // parses response in case the AI does a derp and returns a full string
     const aiReactionResponse = extractReactions(
       gptReactionResponse.choices[0].message.content
     );
 
-    // has an x percent chance of reacting to the message
-    if (aiReactionResponse) {
-      try {
-        console.log(messageId, aiReactionResponse);
-        await updateReaction(messageId, aiReactionResponse, true);
-        console.log("Reaction inserted successfully after X seconds");
-      } catch (error) {
-        console.error("Error inserting delayed reaction", error);
-      }
+    // Has a % chance to react to the message
+    if (aiReactionResponse && randomBoolean(0.85)) {
+      handleDelayedReaction(messageId, aiReactionResponse);
     }
 
     // Generate embedding for the user input
@@ -119,46 +116,12 @@ const createUserEmbedding = async (req, res) => {
     userEmbeddings.push(...referenceTexts);
 
     // Construct the prompt for ChatGPT
-    const context = userEmbeddings
-      .map((info) => {
-        if (info.user_input) {
-          return (
-            info.created_at +
-            "\n" +
-            "user_input: " +
-            info.user_input +
-            "\n" +
-            "response: " +
-            info.response
-          );
-        } else {
-          return info.title + "\n" + "text: " + info.text;
-        }
-      })
-      .join("\n");
+    const context = buildContext(userEmbeddings);
 
     // Generate response using ChatGPT
-    const gptResponse = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo-0125",
-      messages: [
-        {
-          role: "system",
-          content: `
-          You are Alexander Hamilton. You always answer as Alexander Hamilton. 
-          If a user asks a question that Hamilton would not reasonably know, 
-          make your best guess as to how Hamilton would respond.
-          Don't greet more than once. 
-          Do not use modern language. 
-          Do not repeat yourself.
-          Keep your answers relatively short.
-          Match the style and tone of this context and refer to it to answer the user's input: ${context}. `,
-        },
-        { role: "user", content: userInput },
-      ],
-      max_tokens: 150,
-    });
+    const gptResponse = await generateGptResponse(userInput, context);
 
-    let aiResponse = gptResponse.choices[0].message.content;
+    const aiResponse = gptResponse.choices[0].message.content;
 
     if (!aiResponse) {
       return res.status(500).json({ error: "Error generating response" });
@@ -172,21 +135,11 @@ const createUserEmbedding = async (req, res) => {
       aiResponse as string
     );
 
-    // // Save the response to the messages table
-    // await insertMessage(userId, aiResponse, "Agent");
-
     // Return the response to the user
     res.json({ response: "success" });
 
     // Delay the insertion of the message by 10-30 seconds to give time to react
-    setTimeout(async () => {
-      try {
-        await insertMessage(userId, aiResponse as string, "Agent");
-        console.log("Message inserted successfully after 20 seconds");
-      } catch (error) {
-        console.error("Error inserting delayed message", error);
-      }
-    }, getRandomNumber(3000, 10000));
+    handleDelayedMessageInsertion(userId, aiResponse);
   } catch (err) {
     console.error("Error handling chat request", err);
     res.status(500).json({ error: "Internal server error" });

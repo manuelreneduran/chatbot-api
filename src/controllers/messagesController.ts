@@ -1,5 +1,6 @@
 import { serializeMessages } from "../serializers/messagesSerializer";
 import knex from "../services/knex";
+import { getRandomNumber } from "../utils/number";
 import { insertReaction } from "./reactionsController";
 import _ from "lodash";
 
@@ -70,6 +71,18 @@ async function insertMessage(userId: string, text: string, userType: string) {
     console.error("Error storing user embedding:", err);
   }
 }
+
+// Helper function to store message in the database after a delay
+export const handleDelayedMessageInsertion = (userId, aiResponse) => {
+  setTimeout(async () => {
+    try {
+      await insertMessage(userId, aiResponse, "Agent");
+      console.log("Message inserted successfully after 20 seconds");
+    } catch (error) {
+      console.error("Error inserting delayed message", error);
+    }
+  }, getRandomNumber(3000, 10000));
+};
 
 const getMessages = async (req, res) => {
   const { userId } = req.query;
