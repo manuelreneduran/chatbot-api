@@ -81,7 +81,7 @@ export const handleDelayedMessageInsertion = (userId, aiResponse) => {
     } catch (error) {
       console.error("Error inserting delayed message", error);
     }
-  }, getRandomNumber(3000, 10000));
+  }, getRandomNumber(3000, 7000));
 };
 
 const getMessages = async (req, res) => {
