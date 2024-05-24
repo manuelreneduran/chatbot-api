@@ -56,5 +56,17 @@ async function processAndStoreLargeText(
     console.log("Error processing and storing reference text:", e);
   }
 }
+// Helper function to extract reactions from text
+function extractReactions(text) {
+  const reactions = ["haha", "wow", "like", "love", "angry", "sad"];
+  const regex = new RegExp(`\\b(${reactions.join("|")})\\b`, "gi");
+  const matches = text.match(regex);
+  return matches ? matches.map((match) => match.toLowerCase()) : [];
+}
 
-export { generateEmbedding, splitTextIntoChunks, processAndStoreLargeText };
+export {
+  generateEmbedding,
+  splitTextIntoChunks,
+  processAndStoreLargeText,
+  extractReactions,
+};

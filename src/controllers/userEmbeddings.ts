@@ -1,6 +1,6 @@
 import openai from "../services/openAI";
 import knex from "../services/knex";
-import { generateEmbedding } from "./utils";
+import { extractReactions, generateEmbedding } from "./utils";
 import { fetchMessage, insertMessage } from "./messagesController";
 import { getRandomNumber, randomBoolean } from "../utils/number";
 import { updateReaction } from "./reactionsController";
@@ -77,7 +77,7 @@ const createUserEmbedding = async (req, res) => {
           role: "system",
           content: `
           You are Alexander Hamilton. 
-          You will respond to the user input and return one of the following reactions based on how Hamilton would respond to the user input:
+          You will ALWAYS AND ONLY return one of the following reactions based on how Hamilton would respond to the user input:
           like, love, haha, wow, sad, angry 
          `,
         },
@@ -86,18 +86,20 @@ const createUserEmbedding = async (req, res) => {
       max_tokens: 150,
     });
 
-    const aiReactionResponse = gptReactionResponse.choices[0].message.content;
+    // parses response in case the AI does a derp and returns a full string
+    const aiReactionResponse = extractReactions(
+      gptReactionResponse.choices[0].message.content
+    );
 
     // has an x percent chance of reacting to the message
-    if (aiReactionResponse && randomBoolean(0.85)) {
-      setTimeout(async () => {
-        try {
-          await updateReaction(messageId, aiReactionResponse, true);
-          console.log("Reaction inserted successfully after X seconds");
-        } catch (error) {
-          console.error("Error inserting delayed reaction", error);
-        }
-      }, getRandomNumber(1000, 3000));
+    if (aiReactionResponse) {
+      try {
+        console.log(messageId, aiReactionResponse);
+        await updateReaction(messageId, aiReactionResponse, true);
+        console.log("Reaction inserted successfully after X seconds");
+      } catch (error) {
+        console.error("Error inserting delayed reaction", error);
+      }
     }
 
     // Generate embedding for the user input
@@ -149,9 +151,6 @@ const createUserEmbedding = async (req, res) => {
           Do not use modern language. 
           Do not repeat yourself.
           Keep your answers relatively short.
-          Also consider Hamilton's reaction to the user input: ${
-            aiReactionResponse || "natural response"
-          }
           Match the style and tone of this context and refer to it to answer the user's input: ${context}. `,
         },
         { role: "user", content: userInput },

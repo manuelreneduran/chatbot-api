@@ -40,7 +40,12 @@ async function fetchAllMessages(userId: string): Promise<any[]> {
     const result = await knex("messages")
       .join("reactions", "messages.id", "reactions.message_id")
       .where("messages.user_id", userId)
-      .select("messages.*", "reactions.*");
+      .select(
+        "messages.id as message_id",
+        "messages.*",
+        "reactions.id as reaction_id",
+        "reactions.*"
+      );
 
     return result;
   } catch (err) {
