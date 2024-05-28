@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import "./services/openAI";
-import apiRoutes from "./routes/api.ts";
+import apiRoutes from "./routes/api";
 
 const app = express();
 

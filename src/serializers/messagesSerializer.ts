@@ -2,14 +2,14 @@ import { TMessage, TMessageList } from "../types";
 import { formatDate, formatTime } from "../utils/date";
 
 // Helper function to serialize messages for the response
-export const serializeMessages = (messages) => {
+export const serializeMessages = (messages: any) => {
   const serializedMessages: TMessageList = {};
 
   const sortedMessages = messages.sort(
-    (a, b) =>
+    (a: any, b: any) =>
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
   );
-  sortedMessages.forEach((message) => {
+  sortedMessages.forEach((message: any) => {
     const date = formatDate(new Date(message.created_at));
 
     if (!serializedMessages[date]) {

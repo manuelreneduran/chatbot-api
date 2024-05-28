@@ -64,7 +64,7 @@ const fetchRelevantReferenceTexts = async (embedding: number[]) => {
 };
 
 // Helper function to build the context for ChatGPT
-const buildContext = (userEmbeddings) => {
+const buildContext = (userEmbeddings: any[]) => {
   return userEmbeddings
     .map((info) => {
       if (info.user_input) {
@@ -77,7 +77,7 @@ const buildContext = (userEmbeddings) => {
 };
 
 // Endpoint to save user embedding and make request to ChatGPT
-const createUserEmbedding = async (req, res) => {
+const createUserEmbedding = async (req: any, res: any) => {
   const { userId, messageId } = req.body;
 
   try {
@@ -90,9 +90,10 @@ const createUserEmbedding = async (req, res) => {
     const gptReactionResponse = await generateGptReaction(userInput);
 
     // parses response in case the AI does a derp and returns a full string
-    const aiReactionResponse = extractReactions(
-      gptReactionResponse.choices[0].message.content
-    );
+    const aiReactionResponse =
+      extractReactions(
+        gptReactionResponse.choices[0].message.content || ""
+      )?.[0] || "";
 
     // Has a % chance to react to the message
     if (aiReactionResponse && randomBoolean(0.85)) {

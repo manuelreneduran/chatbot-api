@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { Secret } from "jsonwebtoken";
 
-const secretKey = process.env.JWT_ADMIN_SECRET; // Use a secret key from your environment variables
+const secretKey: Secret = process.env.JWT_ADMIN_SECRET || ""; // Use a secret key from your environment variables
 
 export function authenticateToken(
   req: Request,
@@ -15,7 +15,7 @@ export function authenticateToken(
     return res.sendStatus(401); // Unauthorized if no token is provided
   }
 
-  jwt.verify(token, secretKey, (err, user) => {
+  jwt.verify(token, secretKey, (err: any) => {
     if (err) {
       return res.sendStatus(403); // Forbidden if token is invalid
     }

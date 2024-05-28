@@ -1,4 +1,4 @@
-function getRandomNumber(min, max) {
+function getRandomNumber(min: number, max: number) {
   return Math.floor(Math.random() * max) + min;
 }
 // has a {float}% chance of returning true

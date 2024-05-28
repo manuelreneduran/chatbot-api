@@ -1,6 +1,6 @@
 import openaiClient from "../services/openAI";
 
-export const generateGptReaction = async (userInput) => {
+export const generateGptReaction = async (userInput: string) => {
   return await openaiClient.chat.completions.create({
     model: "gpt-3.5-turbo-0125",
     messages: [
@@ -18,7 +18,10 @@ export const generateGptReaction = async (userInput) => {
   });
 };
 
-export const generateGptResponse = async (userInput, context) => {
+export const generateGptResponse = async (
+  userInput: string,
+  context: string
+) => {
   return await openaiClient.chat.completions.create({
     model: "gpt-3.5-turbo-0125",
     messages: [

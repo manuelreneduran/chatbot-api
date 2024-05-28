@@ -1,6 +1,6 @@
 import knex from "../services/knex";
 
-const deleteUserData = async (req, res) => {
+const deleteUserData = async (req: any, res: any) => {
   const { userId } = req.body;
   try {
     await knex("user_embeddings").where("user_id", userId).del();

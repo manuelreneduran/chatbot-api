@@ -73,7 +73,10 @@ async function insertMessage(userId: string, text: string, userType: string) {
 }
 
 // Helper function to store message in the database after a delay
-export const handleDelayedMessageInsertion = (userId, aiResponse) => {
+export const handleDelayedMessageInsertion = (
+  userId: string,
+  aiResponse: string
+) => {
   setTimeout(async () => {
     try {
       await insertMessage(userId, aiResponse, "Agent");
@@ -84,7 +87,7 @@ export const handleDelayedMessageInsertion = (userId, aiResponse) => {
   }, getRandomNumber(3000, 7000));
 };
 
-const getMessages = async (req, res) => {
+const getMessages = async (req: any, res: any) => {
   const { userId } = req.query;
 
   try {
@@ -104,7 +107,7 @@ const getMessages = async (req, res) => {
   }
 };
 
-const createMessage = async (req, res) => {
+const createMessage = async (req: any, res: any) => {
   const { userId, text } = req.body;
 
   try {

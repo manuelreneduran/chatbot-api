@@ -57,11 +57,11 @@ async function processAndStoreLargeText(
   }
 }
 // Helper function to extract reactions from text
-function extractReactions(text) {
+function extractReactions(text: string) {
   const reactions = ["haha", "wow", "like", "love", "angry", "sad"];
   const regex = new RegExp(`\\b(${reactions.join("|")})\\b`, "gi");
   const matches = text.match(regex);
-  return matches ? matches.map((match) => match.toLowerCase()) : [];
+  return matches ? matches.map((match: string) => match.toLowerCase()) : [];
 }
 
 export {

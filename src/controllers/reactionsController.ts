@@ -41,7 +41,7 @@ export async function getReaction(messageId: number) {
   }
 }
 
-export const createOrDeleteReaction = async (req, res) => {
+export const createOrDeleteReaction = async (req: any, res: any) => {
   const { messageId, type } = req.body;
 
   const reaction = await getReaction(messageId);
@@ -67,7 +67,10 @@ export const createOrDeleteReaction = async (req, res) => {
   }
 };
 
-export const handleDelayedReaction = (messageId, aiReactionResponse) => {
+export const handleDelayedReaction = (
+  messageId: number,
+  aiReactionResponse: string
+) => {
   setTimeout(async () => {
     try {
       await updateReaction(messageId, aiReactionResponse, true);
