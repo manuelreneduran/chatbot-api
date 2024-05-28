@@ -5,6 +5,7 @@ import { adminLogin } from "../controllers/authController";
 import { deleteUserData } from "../controllers/adminController";
 import { createMessage, getMessages } from "../controllers/messagesController";
 import { createOrDeleteReaction } from "../controllers/reactionsController";
+import { processAndStoreReferenceText } from "../controllers/referenceTextController";
 
 const router = express.Router();
 
@@ -21,5 +22,6 @@ router.post("/api/reactions", createOrDeleteReaction);
 // Admin routes
 router.delete("/admin/deleteUserData", authenticateToken, deleteUserData);
 router.post("/admin/login", adminLogin);
+router.post("/admin/seed", authenticateToken, processAndStoreReferenceText);
 
 export default router;

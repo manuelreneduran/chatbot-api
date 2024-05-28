@@ -23,7 +23,7 @@ async function storeReferenceText(
 async function processAndStoreReferenceText(res, req) {
   const filePath = resolve("./hamilton_1.txt");
   const title = "Hamilton_1";
-  const maxTokens = 1000; // Adjust the token size as needed
+  const maxTokens = 100; // Adjust the token size as needed
 
   try {
     await processAndStoreLargeText(
