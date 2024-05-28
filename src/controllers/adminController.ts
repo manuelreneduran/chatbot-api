@@ -1,4 +1,4 @@
-import knex from "../services/knex";
+import knex from "../services/knex.js";
 
 const deleteUserData = async (req: any, res: any) => {
   const { userId } = req.body;

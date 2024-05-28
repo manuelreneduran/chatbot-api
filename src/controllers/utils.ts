@@ -1,4 +1,4 @@
-import openai from "../services/openAI";
+import openai from "../services/openAIClient.js";
 import fs from "fs";
 import readline from "readline";
 

@@ -1,12 +1,12 @@
-import knex from "../services/knex";
-import { randomBoolean } from "../utils/number";
-import { generateGptReaction, generateGptResponse } from "./gptController";
+import knex from "../services/knex.js";
+import { randomBoolean } from "../utils/number.js";
+import { generateGptReaction, generateGptResponse } from "./gptController.js";
 import {
   fetchMessage,
   handleDelayedMessageInsertion,
-} from "./messagesController";
-import { handleDelayedReaction } from "./reactionsController";
-import { extractReactions, generateEmbedding } from "./utils";
+} from "./messagesController.js";
+import { handleDelayedReaction } from "./reactionsController.js";
+import { extractReactions, generateEmbedding } from "./utils.js";
 
 // Helper function to store interaction in the database
 async function insertUserEmbeddings(

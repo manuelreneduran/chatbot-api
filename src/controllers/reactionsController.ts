@@ -1,5 +1,5 @@
-import knex from "../services/knex";
-import { getRandomNumber } from "../utils/number";
+import knex from "../services/knex.js";
+import { getRandomNumber } from "../utils/number.js";
 
 // Helper function to store reaction in the database
 export async function insertReaction(messageId: number) {

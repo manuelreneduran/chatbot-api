@@ -1,11 +1,14 @@
 import express from "express";
-import { createUserEmbedding } from "../controllers/userEmbeddings";
-import { authenticateToken } from "../middleware/auth";
-import { adminLogin } from "../controllers/authController";
-import { deleteUserData } from "../controllers/adminController";
-import { createMessage, getMessages } from "../controllers/messagesController";
-import { createOrDeleteReaction } from "../controllers/reactionsController";
-import { processAndStoreReferenceText } from "../controllers/referenceTextController";
+import { createUserEmbedding } from "../controllers/userEmbeddings.js";
+import { authenticateToken } from "../middleware/auth.js";
+import { adminLogin } from "../controllers/authController.js";
+import { deleteUserData } from "../controllers/adminController.js";
+import {
+  createMessage,
+  getMessages,
+} from "../controllers/messagesController.js";
+import { createOrDeleteReaction } from "../controllers/reactionsController.js";
+import { processAndStoreReferenceText } from "../controllers/referenceTextController.js";
 
 const router = express.Router();
 

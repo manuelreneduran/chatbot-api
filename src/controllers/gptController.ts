@@ -1,4 +1,4 @@
-import openaiClient from "../services/openAI";
+import openaiClient from "../services/openAIClient.js";
 
 export const generateGptReaction = async (userInput: string) => {
   return await openaiClient.chat.completions.create({

@@ -1,6 +1,6 @@
-import knex from "../services/knex";
+import knex from "../services/knex.js";
 import { resolve } from "path";
-import { processAndStoreLargeText } from "./utils";
+import { processAndStoreLargeText } from "./utils.js";
 
 // Helper function to store reference text and its embedding in the database
 async function storeReferenceText(

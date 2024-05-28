@@ -1,7 +1,7 @@
-import { serializeMessages } from "../serializers/messagesSerializer";
-import knex from "../services/knex";
-import { getRandomNumber } from "../utils/number";
-import { insertReaction } from "./reactionsController";
+import { serializeMessages } from "../serializers/messagesSerializer.js";
+import knex from "../services/knex.js";
+import { getRandomNumber } from "../utils/number.js";
+import { insertReaction } from "./reactionsController.js";
 import _ from "lodash";
 
 // Helper function to get the latest message from every user

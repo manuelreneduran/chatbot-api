@@ -1,5 +1,5 @@
-import { TMessage, TMessageList } from "../types";
-import { formatDate, formatTime } from "../utils/date";
+import { TMessage, TMessageList } from "../types.js";
+import { formatDate, formatTime } from "../utils/date.js";
 
 // Helper function to serialize messages for the response
 export const serializeMessages = (messages: any) => {
